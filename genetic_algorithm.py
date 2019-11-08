@@ -1,5 +1,6 @@
 import random
 import numpy as np
+from mean_squared_error_calculator import *
 
 
 class GeneticAlgorithm:
@@ -8,7 +9,7 @@ class GeneticAlgorithm:
 
     def __init__(self, population_size = 1000, chromosome_size = 10, gene_max = 255, num_loops = 100):
         # Constantes:
-        self.population_size = population_size
+        self.population_size = 2*(population_size//2) # must be even
         self.chromosome_size = chromosome_size
         self.gene_max = gene_max
         self.num_loops = num_loops
@@ -23,7 +24,7 @@ class GeneticAlgorithm:
         fitness_sum = np.sum(self.fitness)
         previous_probability = 0.0
 
-        for i in range(self.population_size):
+        for i in range(0, self.population_size - 1):
             probabilities.append(previous_probability + (self.fitness[i] / fitness_sum))
 
         rand = random.random()
@@ -31,16 +32,47 @@ class GeneticAlgorithm:
             if rand < probabilities[subject]:
                 return subject
 
-    def evolve(self, grammar):
-        # Loop de evolução
-        for i in range(1, self.num_loops):
+    def crossover(self, parents):
+        rand = random.randint(1, self.chromosome_size-1)
+        bros = parents[0][0:rand] + parents[1][rand::]
+        sis = parents[1][0:rand] + parents[0][rand::]
+        return [bros, sis]
 
-            # Avaliação:
+    def mutation(self, son, mutation_rate = 0.1):
+        for gene in range(0, self.chromosome_size-1):
+            if random.random() < mutation_rate:
+                son[gene] = random.randint(0, self.gene_max)
+        for gene in range(0, self.chromosome_size - 1):
+            if random.random() < mutation_rate:
+                son[gene] = random.randint(0, self.gene_max)
+        return son
+
+    def evolve(self, grammar, crossing_probability=0.8, mutation_rate=0.1):
+        # Loop de evolução
+        for generation in range(1, self.num_loops):
+
+            # Assessment:
+            MSEcalc = MSECalculator('training.csv')
             for chromosome in self.population:
                 expr = grammar.derivateExpression(chromosome)
-                self.fitness.append(1.0/grammar.cost(expr))
+                self.fitness.append(1.0/MSEcalc.mean_squared_error(expr))
 
-            # Seleção:
-            selected_chromosomes = list
-            # for i in range(1,10)
+            # Selection, crossing and mutation:
+            for parents_index in range(0, self.population_size//2-1):
+                # Selection:
+                parents = [self.proportionateSelection(), self.proportionateSelection()]
+                rand = random.random()
+                # Crossing:
+                if rand < crossing_probability:
+                    children = self.crossover(parents)
+                    # Mutation:
+                    self.population[parents_index] = self.mutation(children[0], mutation_rate)
+                    self.population[parents_index+1] = self.mutation(children[1], mutation_rate)
+                else:
+                    # if it don't cross, just mutate:
+                    self.population[parents_index] = self.mutation(parents[0], mutation_rate)
+                    self.population[parents_index + 1] = self.mutation(parents[1], mutation_rate)
+
+
+
 
