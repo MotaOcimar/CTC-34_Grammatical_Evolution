@@ -34,8 +34,7 @@ class DataAnalyzer:
             strength.append(symbolic_exp.subs({x1: x[0], x2: x[1], x3: x[2], x4: x[3], x5: x[4], x6: x[5], x7: x[6],
                                                x8: x[7]}))
         strength = numpy.array(strength)
-        print(strength)
-        strength = numpy.array(strength)
+        #print(strength)
         return strength / numpy.max(strength)
 
     def mean_squared_error(self, exp):
