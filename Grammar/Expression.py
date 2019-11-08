@@ -1,14 +1,13 @@
-import numpy as np
-
-from EnumClasses import State
-from Grammar import Grammar
+from Grammar.EnumClasses import State
+from Grammar.Grammar import Grammar
 
 
 class Expression(Grammar):
 
     working_on = 0
+    state = None
 
-    def __index__(self, num_digits):
+    def __init__(self, num_digits):
         Grammar.__init__(self)
         self.num_digits = num_digits
 
@@ -16,6 +15,7 @@ class Expression(Grammar):
             self.const_derivations.append('<dig>')
 
     def derivateExpression(self, gene):
+
 
         if self.working_on < len(self.initial):
 
@@ -30,7 +30,7 @@ class Expression(Grammar):
                         self.initial.insert(self.working_on, self.derivations[new_expression][i])
                         self.initial.remove(to_remove)
                     else:
-                        self.initial.insert(self.working_on + 1, self.derivations[new_expression][i])
+                        self.initial.insert(self.working_on + i, self.derivations[new_expression][i])
 
 
             elif self.initial[self.working_on] == '<op>':
@@ -54,7 +54,7 @@ class Expression(Grammar):
                         self.initial.insert(self.working_on, self.const_derivations[0])
                         self.initial.remove(to_remove)
                     else:
-                        self.initial.insert(self.working_on + 1, self.const_derivations[i])
+                        self.initial.insert(self.working_on + i, self.const_derivations[i])
 
                 new_bit = str(gene % 2)
 
@@ -77,14 +77,18 @@ class Expression(Grammar):
 
     def derivateFromChromosome(self, chromosome, maximum):
 
-        state = None
         for i in range(0, maximum):
             for gene in chromosome:
-                state = self.derivateExpression(gene)
-                if state == State.finished:
+                self.state = self.derivateExpression(gene)
+                if self.state == State.finished:
                     break
 
-            if state == State.finished:
-                break
+            if self.state == State.finished:
+                return "".join(self.initial)
 
-        return state
+        return ""
+
+
+    def reset(self):
+        self.state = None
+        self.initial = ['<exp>']

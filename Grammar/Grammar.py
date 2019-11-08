@@ -1,5 +1,5 @@
 class Grammar:
-    var = ['x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8']
+    var = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
     func = ['np.sin', 'np.cos', 'np.tan', 'np.log', 'np.exp']
     operations = ['+', '-', '*', '/']
     initial = ['<exp>']
