@@ -73,6 +73,6 @@ class GeneticAlgorithm:
                     self.population[parents_index] = self.mutation(parents[0], mutation_rate)
                     self.population[parents_index + 1] = self.mutation(parents[1], mutation_rate)
 
-
+        return self.population # [x for _, x in sorted(zip(fitness,self.population))]
 
 
