@@ -1,6 +1,6 @@
 import random
 import numpy as np
-from mean_squared_error_calculator import *
+from data_analyzer import *
 
 
 class GeneticAlgorithm:
@@ -52,10 +52,10 @@ class GeneticAlgorithm:
         for generation in range(1, self.num_loops):
 
             # Assessment:
-            MSEcalc = MSECalculator('training.csv')
+            MSEcalculator = DataAnalyzer('training.csv')
             for chromosome in self.population:
                 expr = grammar.derivateExpression(chromosome)
-                self.fitness.append(1.0/MSEcalc.mean_squared_error(expr))
+                self.fitness.append(1.0/MSEcalculator.mean_squared_error(expr))
 
             # Selection, crossing and mutation:
             for parents_index in range(0, self.population_size//2-1):
