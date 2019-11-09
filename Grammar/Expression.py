@@ -84,7 +84,7 @@ class Expression(Grammar):
             if self.state == State.finished:
                 return "".join(self.initial)
 
-        return "10"
+        return "np.nan"
 
     def reset(self):
         self.state = None

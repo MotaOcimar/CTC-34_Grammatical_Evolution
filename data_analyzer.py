@@ -4,14 +4,14 @@ import sympy
 
 
 class DataAnalyzer:
-    x1 = sympy.Symbol('x1')
-    x2 = sympy.Symbol('x2')
-    x3 = sympy.Symbol('x3')
-    x4 = sympy.Symbol('x4')
-    x5 = sympy.Symbol('x5')
-    x6 = sympy.Symbol('x6')
-    x7 = sympy.Symbol('x7')
-    x8 = sympy.Symbol('x8')
+    # x1 = sympy.Symbol('x1')
+    # x2 = sympy.Symbol('x2')
+    # x3 = sympy.Symbol('x3')
+    # x4 = sympy.Symbol('x4')
+    # x5 = sympy.Symbol('x5')
+    # x6 = sympy.Symbol('x6')
+    # x7 = sympy.Symbol('x7')
+    # x8 = sympy.Symbol('x8')
 
     def __init__(self, path):
         with open(path) as f:

@@ -7,7 +7,7 @@ class Grammar:
     derivations = [['<exp>', '<op>', '<exp>'],
                    ['(', '<exp>', '<op>', '<exp>', ')'],
                    ['<var>'],
-                   ['<func>', '(', '<exp>', ')'],
+                   # ['<func>', '(', '<exp>', ')'],
                    ['<const>'],
                    ['<var>', '**', '<dig>']
                    ]

@@ -29,7 +29,10 @@ class GeneticAlgorithm:
             previous_probability = previous_probability + (fitness[i] / fitness_sum)
             probabilities.append(previous_probability)
 
+        # print(fitness_sum)
+        # print(probabilities)
         rand = random.random()
+        # print(rand)
         return bisect.bisect_left(probabilities, rand)
 
     def crossover(self, parents_index):
@@ -44,29 +47,36 @@ class GeneticAlgorithm:
                 son[gene_index] = random.randint(0, self.gene_max)
         return son
 
-    def evolve(self, filename, crossing_probability=0.8, mutation_rate=0.1, num_loops=10000,
+    def assessment(self, MSEcalculator, expr_gen):
+        self.MSE = []
+        for chromosome in self.population:
+            expr_gen.reset()
+            expr = expr_gen.derivateFromChromosome(chromosome, 5)
+            mse = MSEcalculator.mean_squared_error(expr)
+            if not np.isfinite(mse):
+                mse = np.inf
+            if mse == 0:
+                mse = 10**-6 # to avoid inf fitness
+            print(expr, ": ", mse)
+            self.MSE.append(mse)
+
+    def evolve(self, filename, crossing_probability=0.8, mutation_rate=0.1, num_loops=1000,
                satisfactory_MSE=0.01):
         # Assessment:
-        print("0: Assessment ")
+        print("Generation 0: Assessment")
         MSEcalculator = DataAnalyzer(filename)
-        self.MSE = []
-        grammar = Expression(num_digits=8)
-        for chromosome in self.population:
-            grammar.reset()
-            expr = grammar.derivateFromChromosome(chromosome, 5)
-            print(expr)
-            # expr = "x1+x2+x3+x4"
-            self.MSE.append(MSEcalculator.mean_squared_error(expr))
+        expr_gen = Expression(num_digits=8)
+        self.assessment(MSEcalculator, expr_gen)
 
         # Evolve loop:
         generation = 0
         while generation < num_loops and max(self.MSE) > satisfactory_MSE:
             # Selection, crossing and mutation:
-            print(generation, ": Selection and crossing")
+            print("\n\nGeneration ", generation, ": Selection and crossing")
             for children_index in range(0, self.population_size//2):
                 # Selection:
                 parents_index = [self.proportionateSelection(), self.proportionateSelection()]
-                print(parents_index)
+                # print(parents_index)
                 rand = random.random()
                 if rand < crossing_probability:
                     # Crossing:
@@ -75,20 +85,14 @@ class GeneticAlgorithm:
                     # if it don't cross, just pass:
                     children = [self.population[parents_index[0]], self.population[parents_index[1]]]
                 # Mutation:
-                self.population[children_index] = self.mutation(children[0], mutation_rate)
-                self.population[children_index+1] = self.mutation(children[1], mutation_rate)
+                self.population[2*children_index] = self.mutation(children[0], mutation_rate)
+                self.population[2*children_index+1] = self.mutation(children[1], mutation_rate)
 
             generation = generation+1
             # Assessment:
             # (Here due to the stopping criterion)
-            print(generation, ": Assessment")
-            self.MSE = []
-            grammar = Expression(num_digits=8)
-            for chromosome in self.population:
-                grammar.reset()
-                expr = grammar.derivateFromChromosome(chromosome, 5)
-                print(expr)
-                self.MSE.append(MSEcalculator.mean_squared_error(expr))
+            print("\n\nGeneration ", generation, ": Assessment")
+            self.assessment(MSEcalculator, expr_gen)
 
         # Population is returned ordered by MSE
         return [x for _, x in sorted(zip(self.MSE, self.population))]
