@@ -33,12 +33,6 @@ class GeneticAlgorithm:
         rand = random.random()
         return bisect.bisect_left(probabilities, rand)
 
-        # for subject in range(0, self.population_size):
-        #     if rand <= probabilities[subject]:
-        #         return subject
-        #
-        # return self.population_size-1
-
     def crossover(self, parents_index):
         rand = random.randint(1, self.chromosome_size-1)
         bros = self.population[parents_index[0]][0:rand] + self.population[parents_index[1]][rand::]
@@ -57,17 +51,16 @@ class GeneticAlgorithm:
         print("0: Assessment ")
         MSEcalculator = DataAnalyzer(filename)
         self.MSE = []
-        # grammar = Expression()
         for chromosome in self.population:
-            # expr = grammar.derivateFromChromosome(chromosome, 5)
-            expr = "x1+x2+x3+x4"
+            grammar = Expression(num_digits=8)
+            expr = grammar.derivateFromChromosome(chromosome, 5)
+            print(chromosome, ": ", expr)
+            # expr = "x1+x2+x3+x4"
             self.MSE.append(MSEcalculator.mean_squared_error(expr))
-            # print(self.MSE)
-        max_MSE = max(self.MSE)
 
-        # Evolve loop
+        # Evolve loop:
         generation = 0
-        while generation < num_loops and max_MSE > satisfactory_MSE:
+        while generation < num_loops and max(self.MSE) > satisfactory_MSE:
             # Selection, crossing and mutation:
             print(generation, ": Selection and crossing")
             for children_index in range(0, self.population_size//2):
@@ -87,14 +80,14 @@ class GeneticAlgorithm:
 
             generation = generation+1
             # Assessment:
-            print(generation, ": Assessment")
             # (Here due to the stopping criterion)
+            print(generation, ": Assessment")
             self.MSE = []
             for chromosome in self.population:
-                # expr = grammar.derivateExpression(chromosome)
-                expr = "x1+x2+x3+x4"
+                grammar = Expression(num_digits=8)
+                expr = grammar.derivateFromChromosome(chromosome, 5)
+                print(expr)
                 self.MSE.append(MSEcalculator.mean_squared_error(expr))
-            max_MSE = max(self.MSE)
 
         # Population is returned ordered by MSE
         return [x for _, x in sorted(zip(self.MSE, self.population))]

@@ -31,7 +31,6 @@ class Expression(Grammar):
                     else:
                         self.initial.insert(self.working_on + i, self.derivations[new_expression][i])
 
-
             elif self.initial[self.working_on] == '<op>':
                 new_op = gene % self.num_operations
                 self.initial[self.working_on] = self.operations[new_op]
@@ -85,8 +84,7 @@ class Expression(Grammar):
             if self.state == State.finished:
                 return "".join(self.initial)
 
-        return ""
-
+        return "10"
 
     def reset(self):
         self.state = None

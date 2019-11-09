@@ -1,5 +1,5 @@
 import csv
-import numpy
+import numpy as np
 import sympy
 
 
@@ -20,10 +20,10 @@ class DataAnalyzer:
             x = []
             self.data = []
             for row in reader:
-                self.data.append(numpy.float_(row[1:9]))
+                self.data.append(np.float_(row[1:9]))
                 if len(row) == 10:
                     x.append(row[9])
-            self.expected_strength = numpy.float_(x)
+            self.expected_strength = np.float_(x)
             #print(self.data)
             #print(self.expected_strength)
 
@@ -31,20 +31,20 @@ class DataAnalyzer:
         # symbolic_exp = sympy.sympify(exp)
         strength = []
         for x in self.data:
-            x1 = x[0]
-            x2 = x[1]
-            x3 = x[2]
-            x4 = x[3]
-            x5 = x[4]
-            x6 = x[5]
-            x7 = x[6]
-            x8 = x[7]
+            a = x[0]
+            b = x[1]
+            c = x[2]
+            d = x[3]
+            e = x[4]
+            f = x[5]
+            g = x[6]
+            h = x[7]
             strength.append(eval(exp))
             # strength.append(symbolic_exp.subs({self.x1: x[0], self.x2: x[1], self.x3: x[2], self.x4: x[3],
             #                                    self.x5: x[4], self.x6: x[5], self.x7: x[6], self.x8: x[7]}))
-        # strength = numpy.array(strength)
+        # strength = np.array(strength)
         #print(strength)
-        return strength #/ numpy.max(strength)
+        return strength #/ np.max(strength)
 
     def mean_squared_error(self, exp):
-        return numpy.square(numpy.subtract(self.strength(exp), self.expected_strength)).mean()
+        return np.square(np.subtract(self.strength(exp), self.expected_strength)).mean()
