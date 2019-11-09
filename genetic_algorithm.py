@@ -1,9 +1,9 @@
 import random
 import numpy as np
-from Expression import Expression
+import bisect
+from Grammar.Expression import Expression
 from data_analyzer import *
 
-# TODO: Ajustar ranges dos FORS
 
 class GeneticAlgorithm:
     population = list()
@@ -21,7 +21,7 @@ class GeneticAlgorithm:
             self.population.append([random.randint(0, self.gene_max) for i in range(0, self.chromosome_size)])
 
     def proportionateSelection(self):
-        probabilities = list()
+        probabilities = []
         fitness = np.divide(1, self.MSE)
         fitness_sum = np.sum(fitness)
         previous_probability = 0.0
@@ -31,11 +31,13 @@ class GeneticAlgorithm:
             probabilities.append(previous_probability)
 
         rand = random.random()
-        for subject in range(0, self.population_size):
-            if rand <= probabilities[subject]:
-                return subject
+        return bisect.bisect_left(probabilities, rand)
 
-        return self.population_size-1
+        # for subject in range(0, self.population_size):
+        #     if rand <= probabilities[subject]:
+        #         return subject
+        #
+        # return self.population_size-1
 
     def crossover(self, parents_index):
         rand = random.randint(1, self.chromosome_size-1)
@@ -54,7 +56,8 @@ class GeneticAlgorithm:
         # Assessment:
         print("0: Assessment ")
         MSEcalculator = DataAnalyzer(filename)
-        grammar = Expression()
+        self.MSE = []
+        # grammar = Expression()
         for chromosome in self.population:
             # expr = grammar.derivateFromChromosome(chromosome, 5)
             expr = "x1+x2+x3+x4"
@@ -86,6 +89,7 @@ class GeneticAlgorithm:
             # Assessment:
             print(generation, ": Assessment")
             # (Here due to the stopping criterion)
+            self.MSE = []
             for chromosome in self.population:
                 # expr = grammar.derivateExpression(chromosome)
                 expr = "x1+x2+x3+x4"

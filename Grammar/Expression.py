@@ -16,7 +16,6 @@ class Expression(Grammar):
 
     def derivateExpression(self, gene):
 
-
         if self.working_on < len(self.initial):
 
             if self.initial[self.working_on] == '<exp>':
