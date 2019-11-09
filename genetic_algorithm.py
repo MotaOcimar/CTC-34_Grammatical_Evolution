@@ -1,5 +1,4 @@
 import random
-import numpy as np
 import bisect
 from Grammar.Expression import Expression
 from data_analyzer import *
@@ -51,10 +50,11 @@ class GeneticAlgorithm:
         print("0: Assessment ")
         MSEcalculator = DataAnalyzer(filename)
         self.MSE = []
+        grammar = Expression(num_digits=8)
         for chromosome in self.population:
-            grammar = Expression(num_digits=8)
+            grammar.reset()
             expr = grammar.derivateFromChromosome(chromosome, 5)
-            print(chromosome, ": ", expr)
+            print(expr)
             # expr = "x1+x2+x3+x4"
             self.MSE.append(MSEcalculator.mean_squared_error(expr))
 
@@ -83,8 +83,9 @@ class GeneticAlgorithm:
             # (Here due to the stopping criterion)
             print(generation, ": Assessment")
             self.MSE = []
+            grammar = Expression(num_digits=8)
             for chromosome in self.population:
-                grammar = Expression(num_digits=8)
+                grammar.reset()
                 expr = grammar.derivateFromChromosome(chromosome, 5)
                 print(expr)
                 self.MSE.append(MSEcalculator.mean_squared_error(expr))

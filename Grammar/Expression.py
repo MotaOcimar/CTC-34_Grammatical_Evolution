@@ -7,7 +7,7 @@ class Expression(Grammar):
     working_on = 0
     state = None
 
-    def __init__(self, num_digits):
+    def __init__(self, num_digits=15):
         Grammar.__init__(self)
         self.num_digits = num_digits
 
@@ -73,7 +73,7 @@ class Expression(Grammar):
         else:
             return State.finished
 
-    def derivateFromChromosome(self, chromosome, maximum):
+    def derivateFromChromosome(self, chromosome, maximum=5):
 
         for i in range(0, maximum):
             for gene in chromosome:
@@ -88,4 +88,6 @@ class Expression(Grammar):
 
     def reset(self):
         self.state = None
-        self.initial = ['<exp>']
+        self.working_on = 0
+        Grammar.initial = ['<exp>']
+        self.__init__(self.num_digits)
