@@ -1,7 +1,9 @@
 import random
 import numpy as np
+from Expression import Expression
 from data_analyzer import *
 
+# TODO: Ajustar ranges dos FORS
 
 class GeneticAlgorithm:
     population = list()
@@ -15,8 +17,8 @@ class GeneticAlgorithm:
 
     def createPopulation(self):
         # Cria a polulação:
-        for i in range(1, self.population_size):
-            self.population.append(random.sample(range(0, self.gene_max), self.chromosome_size))
+        for i in range(0, self.population_size):
+            self.population.append([random.randint(0, self.gene_max) for i in range(0, self.chromosome_size)])
 
     def proportionateSelection(self):
         probabilities = list()
@@ -24,61 +26,69 @@ class GeneticAlgorithm:
         fitness_sum = np.sum(fitness)
         previous_probability = 0.0
 
-        for i in range(0, self.population_size - 1):
-            probabilities.append(previous_probability + (fitness[i] / fitness_sum))
+        for i in range(0, self.population_size):
+            previous_probability = previous_probability + (fitness[i] / fitness_sum)
+            probabilities.append(previous_probability)
 
         rand = random.random()
-        for subject in range(0, self.population_size-1):
-            if rand < probabilities[subject]:
+        for subject in range(0, self.population_size):
+            if rand <= probabilities[subject]:
                 return subject
 
-    def crossover(self, parents):
+        return self.population_size-1
+
+    def crossover(self, parents_index):
         rand = random.randint(1, self.chromosome_size-1)
-        bros = parents[0][0:rand] + parents[1][rand::]
-        sis = parents[1][0:rand] + parents[0][rand::]
+        bros = self.population[parents_index[0]][0:rand] + self.population[parents_index[1]][rand::]
+        sis = self.population[parents_index[1]][0:rand] + self.population[parents_index[0]][rand::]
         return [bros, sis]
 
     def mutation(self, son, mutation_rate=0.1):
-        for gene in range(0, self.chromosome_size-1):
+        for gene_index in range(0, self.chromosome_size):
             if random.random() < mutation_rate:
-                son[gene] = random.randint(0, self.gene_max)
-        for gene in range(0, self.chromosome_size - 1):
-            if random.random() < mutation_rate:
-                son[gene] = random.randint(0, self.gene_max)
+                son[gene_index] = random.randint(0, self.gene_max)
         return son
 
-    def evolve(self, grammar, filename, crossing_probability=0.8, mutation_rate=0.1, num_loops=1000,
+    def evolve(self, filename, crossing_probability=0.8, mutation_rate=0.1, num_loops=10000,
                satisfactory_MSE=0.01):
         # Assessment:
+        print("0: Assessment ")
         MSEcalculator = DataAnalyzer(filename)
+        grammar = Expression()
         for chromosome in self.population:
-            expr = grammar.derivateExpression(chromosome)
+            # expr = grammar.derivateFromChromosome(chromosome, 5)
+            expr = "x1+x2+x3+x4"
             self.MSE.append(MSEcalculator.mean_squared_error(expr))
+            # print(self.MSE)
         max_MSE = max(self.MSE)
 
         # Evolve loop
         generation = 0
         while generation < num_loops and max_MSE > satisfactory_MSE:
             # Selection, crossing and mutation:
-            for parents_index in range(0, self.population_size//2-1):
+            print(generation, ": Selection and crossing")
+            for children_index in range(0, self.population_size//2):
                 # Selection:
-                parents = [self.proportionateSelection(), self.proportionateSelection()]
+                parents_index = [self.proportionateSelection(), self.proportionateSelection()]
+                print(parents_index)
                 rand = random.random()
                 if rand < crossing_probability:
                     # Crossing:
-                    children = self.crossover(parents)
+                    children = self.crossover(parents_index)
                 else:
                     # if it don't cross, just pass:
-                    children = parents
+                    children = [self.population[parents_index[0]], self.population[parents_index[1]]]
                 # Mutation:
-                self.population[parents_index] = self.mutation(children[0], mutation_rate)
-                self.population[parents_index+1] = self.mutation(children[1], mutation_rate)
+                self.population[children_index] = self.mutation(children[0], mutation_rate)
+                self.population[children_index+1] = self.mutation(children[1], mutation_rate)
 
             generation = generation+1
             # Assessment:
+            print(generation, ": Assessment")
             # (Here due to the stopping criterion)
             for chromosome in self.population:
-                expr = grammar.derivateExpression(chromosome)
+                # expr = grammar.derivateExpression(chromosome)
+                expr = "x1+x2+x3+x4"
                 self.MSE.append(MSEcalculator.mean_squared_error(expr))
             max_MSE = max(self.MSE)
 

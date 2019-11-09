@@ -4,6 +4,7 @@ import csv
 
 filename = "training.csv"
 evolution = GeneticAlgorithm()
+evolution.createPopulation()
 population = evolution.evolve(filename)
 analysis = DataAnalyzer(filename)
 
