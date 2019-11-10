@@ -73,7 +73,7 @@ class Expression(Grammar):
         else:
             return State.finished
 
-    def derivateFromChromosome(self, chromosome, maximum=5):
+    def derivateFromChromosome(self, chromosome, maximum=3):
 
         for i in range(0, maximum):
             for gene in chromosome:

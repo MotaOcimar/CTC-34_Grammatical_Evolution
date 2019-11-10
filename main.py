@@ -4,16 +4,17 @@ from Grammar.Expression import Expression
 import csv
 
 # filename = "training.csv"
-filename = 'just-sum.csv'
-evolution = GeneticAlgorithm(population_size=100, chromosome_size=100)
+filename = 'just_x1*x2.csv'
+evolution = GeneticAlgorithm(population_size=1000, chromosome_size=1000)
 evolution.createPopulation()
-population = evolution.evolve(filename)
+total_generations = evolution.evolve(filename, crossing_probability=1, mutation_rate=0.05)
 
-expr_gen = Expression(num_digits=8)
-expr = expr_gen.derivateFromChromosome(population[0], 5)
+print("\n\n\nBest subject: ", evolution.best_expr)
+print("MSE: ", min(evolution.MSE))
+print("In ", total_generations, "generations")
 
 analysis = DataAnalyzer(filename)
-strength = analysis.strength(expr)
+strength = analysis.strength(evolution.best_expr)
 
 #print(analysis.strength('x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8'))
 with open('sample.csv', mode='w') as f:

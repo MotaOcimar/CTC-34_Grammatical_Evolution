@@ -3,7 +3,7 @@ import numpy as np
 
 expression = Expression(5)
 
-chromosome = [8, 53, 54, 56, 456, 54, 34, 3, 8, 39, 7]
+chromosome = [4, 53, 3, 56, 456, 54, 34, 3, 8, 39, 7]
 
 formula = expression.derivateFromChromosome(chromosome, 5)
 

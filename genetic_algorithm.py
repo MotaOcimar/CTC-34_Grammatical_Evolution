@@ -7,8 +7,10 @@ from data_analyzer import *
 class GeneticAlgorithm:
     population = list()
     MSE = list()
+    best_expr = None
+    min_mse = np.inf
 
-    def __init__(self, population_size=1000, chromosome_size=10, gene_max=255):
+    def __init__(self, population_size=100, chromosome_size=1000, gene_max=255):
         # Constantes:
         self.population_size = 2*(population_size//2)  # must be even
         self.chromosome_size = chromosome_size
@@ -47,32 +49,41 @@ class GeneticAlgorithm:
                 son[gene_index] = random.randint(0, self.gene_max)
         return son
 
-    def assessment(self, MSEcalculator, expr_gen):
+    def assessment(self, MSEcalculator, expr_gen, satisfactory_MSE=10**-6):
         self.MSE = []
+        self.min_mse = np.inf
+        self.best_expr = None
+
         for chromosome in self.population:
             expr_gen.reset()
             expr = expr_gen.derivateFromChromosome(chromosome, 5)
             mse = MSEcalculator.mean_squared_error(expr)
             if not np.isfinite(mse):
                 mse = np.inf
-            if mse == 0:
-                mse = 10**-6 # to avoid inf fitness
-            print(expr, ": ", mse)
+            elif mse == 0:
+                mse = satisfactory_MSE  # to avoid inf fitness
+
+            if mse < self.min_mse:
+                self.min_mse = mse
+                self.best_expr = expr
+            # print(expr, ": ", mse)
             self.MSE.append(mse)
 
-    def evolve(self, filename, crossing_probability=0.8, mutation_rate=0.1, num_loops=1000,
-               satisfactory_MSE=0.01):
+        print(self.best_expr, "\t\tMSE: ", self.min_mse)
+
+    def evolve(self, filename, crossing_probability=0.8, mutation_rate=0.1, num_loops=10000,
+               satisfactory_MSE=10**-6):
         # Assessment:
-        print("Generation 0: Assessment")
+        print("Generation 1: Assessment")
         MSEcalculator = DataAnalyzer(filename)
         expr_gen = Expression(num_digits=8)
-        self.assessment(MSEcalculator, expr_gen)
+        self.assessment(MSEcalculator, expr_gen, satisfactory_MSE)
 
         # Evolve loop:
-        generation = 0
-        while generation < num_loops and max(self.MSE) > satisfactory_MSE:
+        generation = 1
+        while generation <= num_loops and min(self.MSE) > satisfactory_MSE:
             # Selection, crossing and mutation:
-            print("\n\nGeneration ", generation, ": Selection and crossing")
+            # print("\n\nGeneration ", generation, ": Selection and crossing")
             for children_index in range(0, self.population_size//2):
                 # Selection:
                 parents_index = [self.proportionateSelection(), self.proportionateSelection()]
@@ -92,7 +103,9 @@ class GeneticAlgorithm:
             # Assessment:
             # (Here due to the stopping criterion)
             print("\n\nGeneration ", generation, ": Assessment")
-            self.assessment(MSEcalculator, expr_gen)
+            self.assessment(MSEcalculator, expr_gen, satisfactory_MSE)
 
-        # Population is returned ordered by MSE
-        return [x for _, x in sorted(zip(self.MSE, self.population))]
+        # self.best_subject_index = self.MSE.index(min(self.MSE))
+        # self.best_subject = self.population[self.best_subject_index]
+
+        return generation
