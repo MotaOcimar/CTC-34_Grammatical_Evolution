@@ -1,13 +1,12 @@
 from data_analyzer import DataAnalyzer
 from genetic_algorithm import GeneticAlgorithm
-from Grammar.Expression import Expression
 import csv
 
-# filename = "training.csv"
-filename = 'just_x1*x2.csv'
-evolution = GeneticAlgorithm(population_size=1000, chromosome_size=1000)
+filename = "training.csv"
+# filename = 'just_x1+x2.csv'
+evolution = GeneticAlgorithm(population_size=1000, chromosome_size=100)
 evolution.createPopulation()
-total_generations = evolution.evolve(filename, crossing_probability=1, mutation_rate=0.05)
+total_generations = evolution.evolve(filename, crossing_probability=1, mutation_rate=0.1, max_generations=200)
 
 print("\n\n\nBest subject: ", evolution.best_expr)
 print("MSE: ", min(evolution.MSE))

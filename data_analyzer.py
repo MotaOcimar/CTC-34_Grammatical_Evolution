@@ -1,3 +1,4 @@
+
 import csv
 import numpy as np
 import sympy
@@ -39,7 +40,10 @@ class DataAnalyzer:
             f = x[5]
             g = x[6]
             h = x[7]
-            strength.append(eval(exp))
+            try:
+                strength.append(eval(exp))
+            except:
+                strength.append(np.nan)
             # strength.append(symbolic_exp.subs({self.x1: x[0], self.x2: x[1], self.x3: x[2], self.x4: x[3],
             #                                    self.x5: x[4], self.x6: x[5], self.x7: x[6], self.x8: x[7]}))
         # strength = np.array(strength)

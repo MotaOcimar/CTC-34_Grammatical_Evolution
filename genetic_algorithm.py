@@ -10,7 +10,7 @@ class GeneticAlgorithm:
     best_expr = None
     min_mse = np.inf
 
-    def __init__(self, population_size=100, chromosome_size=1000, gene_max=255):
+    def __init__(self, population_size=1000, chromosome_size=1000, gene_max=255):
         # Constantes:
         self.population_size = 2*(population_size//2)  # must be even
         self.chromosome_size = chromosome_size
@@ -24,6 +24,26 @@ class GeneticAlgorithm:
     def proportionateSelection(self):
         probabilities = []
         fitness = np.divide(1, self.MSE)
+        fitness_sum = np.sum(fitness)
+        previous_probability = 0.0
+
+        for i in range(0, self.population_size):
+            previous_probability = previous_probability + (fitness[i] / fitness_sum)
+            probabilities.append(previous_probability)
+
+        # print(fitness_sum)
+        # print(probabilities)
+        rand = random.random()
+        # print(rand)
+        return bisect.bisect_left(probabilities, rand)
+
+    def expProportionateSelection(self):
+        probabilities = []
+        if self.min_mse > 0.01:
+            fitness = list(np.exp(np.divide(1, self.MSE))-1)  # the '-1' is to fitness(mse = inf) == 0
+        else:
+            fitness = np.divide(1, self.MSE)
+
         fitness_sum = np.sum(fitness)
         previous_probability = 0.0
 
@@ -71,22 +91,22 @@ class GeneticAlgorithm:
 
         print(self.best_expr, "\t\tMSE: ", self.min_mse)
 
-    def evolve(self, filename, crossing_probability=0.8, mutation_rate=0.1, num_loops=10000,
-               satisfactory_MSE=10**-6):
+    def evolve(self, filename, crossing_probability=1, mutation_rate=0.1, max_generations=10000,
+               satisfactory_MSE=10**-6, const_num_digits=3):
         # Assessment:
         print("Generation 1: Assessment")
         MSEcalculator = DataAnalyzer(filename)
-        expr_gen = Expression(num_digits=8)
+        expr_gen = Expression(const_num_digits)
         self.assessment(MSEcalculator, expr_gen, satisfactory_MSE)
 
         # Evolve loop:
         generation = 1
-        while generation <= num_loops and min(self.MSE) > satisfactory_MSE:
+        while generation <= max_generations and min(self.MSE) > satisfactory_MSE:
             # Selection, crossing and mutation:
             # print("\n\nGeneration ", generation, ": Selection and crossing")
             for children_index in range(0, self.population_size//2):
                 # Selection:
-                parents_index = [self.proportionateSelection(), self.proportionateSelection()]
+                parents_index = [self.expProportionateSelection(), self.expProportionateSelection()]
                 # print(parents_index)
                 rand = random.random()
                 if rand < crossing_probability:
