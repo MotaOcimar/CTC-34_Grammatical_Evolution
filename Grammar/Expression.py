@@ -6,6 +6,7 @@ class Expression(Grammar):
 
     working_on = 0
     state = None
+    useful_size = 0
 
     def __init__(self, num_digits=15):
         Grammar.__init__(self)
@@ -75,8 +76,10 @@ class Expression(Grammar):
 
     def derivateFromChromosome(self, chromosome, maximum=3):
 
+        self.useful_size = 0
         for i in range(0, maximum):
             for gene in chromosome:
+                self.useful_size += 1
                 self.state = self.derivateExpression(gene)
                 if self.state == State.finished:
                     break

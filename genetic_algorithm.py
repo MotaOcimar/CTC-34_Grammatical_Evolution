@@ -73,23 +73,28 @@ class GeneticAlgorithm:
         self.MSE = []
         self.min_mse = np.inf
         self.best_expr = None
+        useful_size = None
 
         for chromosome in self.population:
             expr_gen.reset()
             expr = expr_gen.derivateFromChromosome(chromosome, 5)
             mse = MSEcalculator.mean_squared_error(expr)
+
+            # to avoid inf fitness:
             if not np.isfinite(mse):
                 mse = np.inf
             elif mse == 0:
-                mse = satisfactory_MSE  # to avoid inf fitness
+                mse = satisfactory_MSE
 
+            # finding the best expression:
             if mse < self.min_mse:
                 self.min_mse = mse
                 self.best_expr = expr
+                useful_size = expr_gen.useful_size
             # print(expr, ": ", mse)
             self.MSE.append(mse)
 
-        print(self.best_expr, "\t\tMSE: ", self.min_mse)
+        print(self.best_expr, "\t\tMSE: ", self.min_mse, "\t\tUseful size: ", useful_size)
 
     def evolve(self, filename, crossing_probability=1, mutation_rate=0.1, max_generations=10000,
                satisfactory_MSE=10**-6, const_num_digits=3):
@@ -101,7 +106,7 @@ class GeneticAlgorithm:
 
         # Evolve loop:
         generation = 1
-        while generation <= max_generations and min(self.MSE) > satisfactory_MSE:
+        while generation < max_generations and min(self.MSE) > satisfactory_MSE:
             # Selection, crossing and mutation:
             # print("\n\nGeneration ", generation, ": Selection and crossing")
             for children_index in range(0, self.population_size//2):
