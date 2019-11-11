@@ -4,7 +4,7 @@ import csv
 
 filename = "training.csv"
 # filename = 'just_x1+x2.csv'
-evolution = GeneticAlgorithm(population_size=1000, chromosome_size=100)
+evolution = GeneticAlgorithm(population_size=1000, chromosome_size=50)
 evolution.createPopulation()
 total_generations = evolution.evolve(filename, crossing_probability=1, mutation_rate=0.1, max_generations=200)
 
