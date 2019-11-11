@@ -22,3 +22,4 @@ with open('sample.csv', mode='w') as f:
     i = 722
     for value in strength:
         sample_writer.writerow([i, value])
+        i += 1
