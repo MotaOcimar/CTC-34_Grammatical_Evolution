@@ -40,7 +40,7 @@ class GeneticAlgorithm:
     def expProportionateSelection(self):
         probabilities = []
         if self.min_mse > 0.01:
-            fitness = list(np.exp(np.divide(1, self.MSE))-1)  # the '-1' is to fitness(mse = inf) == 0
+            fitness = list(np.exp(np.divide(100*self.min_mse, self.MSE))-1)  # the '-1' is to fitness(mse = inf) == 0
         else:
             fitness = np.divide(1, self.MSE)
 
@@ -96,7 +96,7 @@ class GeneticAlgorithm:
 
         print(self.best_expr, "\t\tMSE: ", self.min_mse, "\t\tUseful size: ", useful_size)
 
-    def evolve(self, filename, crossing_probability=1, mutation_rate=0.1, max_generations=10000,
+    def evolve(self, filename, crossing_probability=1, mutation_rate=0.1, max_generations=500,
                satisfactory_MSE=10**-6, const_num_digits=3):
         # Assessment:
         print("Generation 1: Assessment")

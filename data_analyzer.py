@@ -20,6 +20,18 @@ class DataAnalyzer:
 
     def strength(self, exp):
         # symbolic_exp = sympy.sympify(exp)
+        func = eval('lambda a, b, c, d, e, f, g, h:' + exp)
+        strength = []
+        for x in self.data:
+            try:
+                strength.append(func(x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7]))
+            except:
+                strength.append(np.nan)
+
+        return strength
+
+    def oldstrength(self, exp):
+        # symbolic_exp = sympy.sympify(exp)
         strength = []
         for x in self.data:
             a = x[0]
@@ -40,3 +52,6 @@ class DataAnalyzer:
 
     def mean_squared_error(self, exp):
         return np.square(np.subtract(self.strength(exp), self.expected_strength)).mean()
+
+    def old_mean_squared_error(self, exp):
+        return np.square(np.subtract(self.oldstrength(exp), self.expected_strength)).mean()
