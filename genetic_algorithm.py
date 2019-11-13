@@ -39,10 +39,7 @@ class GeneticAlgorithm:
 
     def expProportionateSelection(self):
         probabilities = []
-        if self.min_mse > 0.01:
-            fitness = list(np.exp(np.divide(100*self.min_mse, self.MSE))-1)  # the '-1' is to fitness(mse = inf) == 0
-        else:
-            fitness = np.divide(1, self.MSE)
+        fitness = list(np.exp(np.divide(50*self.min_mse, self.MSE))-1)  # the '-1' is to fitness(mse = inf) == 0
 
         fitness_sum = np.sum(fitness)
         previous_probability = 0.0

@@ -1,5 +1,6 @@
 import csv
 import numpy as np
+from sklearn.metrics import mean_squared_error
 
 
 class DataAnalyzer:
@@ -46,12 +47,15 @@ class DataAnalyzer:
                 strength.append(eval(exp))
             except:
                 strength.append(np.nan)
-        # strength = np.array(strength)
+        strength = np.array(strength)
         #print(strength)
         return strength #/ np.max(strength)
 
     def mean_squared_error(self, exp):
-        return np.square(np.subtract(self.strength(exp), self.expected_strength)).mean()
+        try:
+            return mean_squared_error(self.expected_strength, self.strength(exp))
+        except:
+            return np.nan
 
     def old_mean_squared_error(self, exp):
-        return np.square(np.subtract(self.oldstrength(exp), self.expected_strength)).mean()
+        return sum(np.square(np.subtract(self.oldstrength(exp), self.expected_strength)))/(len())

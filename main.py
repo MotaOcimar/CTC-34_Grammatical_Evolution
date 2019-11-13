@@ -2,8 +2,8 @@ from data_analyzer import DataAnalyzer
 from genetic_algorithm import GeneticAlgorithm
 import csv
 
-file_training = "training.csv"
-# file_training = 'just_sum.csv'
+# file_training = "training.csv"
+file_training = 'just_sum.csv'
 evolution = GeneticAlgorithm(population_size=5000, chromosome_size=50)
 evolution.createPopulation()
 total_generations = evolution.evolve(file_training, crossing_probability=1, mutation_rate=0.1, max_generations=200,
