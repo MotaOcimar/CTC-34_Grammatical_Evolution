@@ -2,12 +2,12 @@ from data_analyzer import DataAnalyzer
 from genetic_algorithm import GeneticAlgorithm
 import csv
 
-# file_training = "training.csv"
-file_training = 'just_sum.csv'
-evolution = GeneticAlgorithm(population_size=5000, chromosome_size=50)
+file_training = "training.csv"
+# file_training = 'just_prod.csv'
+evolution = GeneticAlgorithm(population_size=5000, chromosome_size=65)
 evolution.createPopulation()
-total_generations = evolution.evolve(file_training, crossing_probability=1, mutation_rate=0.1, max_generations=200,
-                                     const_num_digits=3)
+total_generations = evolution.evolve(file_training, crossing_probability=1, mutation_rate=0.1, selection_exp_const=100,
+                                     max_generations=200, const_num_digits=3, satisfactory_MSE=0.01)
 
 print("\n\n\nBest subject: ", evolution.best_expr)
 print("MSE: ", min(evolution.MSE))
