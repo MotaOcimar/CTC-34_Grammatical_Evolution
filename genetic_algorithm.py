@@ -91,12 +91,13 @@ class GeneticAlgorithm:
             # print(expr, ": ", mse)
             self.MSE.append(mse)
 
-        print(self.best_expr, "\t\tsqrt(MSE): ", np.sqrt(self.min_mse), "\t\tUseful size: ", useful_size)
+        print("OK\n\n\tBest expression:\t", self.best_expr)
+        print("\tsqrt(MSE):\t\t\t", np.sqrt(self.min_mse), "\t\tUseful size: ", useful_size)
 
     def evolve(self, filename, crossing_probability=0.8, mutation_rate=0.1, selection_exp_const=50, max_generations=200,
                const_num_digits=3, satisfactory_MSE=10**-6):
         # Evaluation:
-        print("Generation 1: Evaluation")
+        print("Generation 1: Evaluating...")
         MSEcalculator = DataAnalyzer(filename)
         expr_gen = Expression(const_num_digits)
         self.evaluation(MSEcalculator, expr_gen, satisfactory_MSE)
@@ -105,7 +106,7 @@ class GeneticAlgorithm:
         generation = 1
         while generation < max_generations and min(self.MSE) > satisfactory_MSE:
             # Selection, crossing and mutation:
-            # print("\n\nGeneration ", generation, ": Selection and crossing")
+            print("\n\nSelecting and crossing ...", end="")
             for children_index in range(0, self.population_size//2):
                 # Selection:
                 parents_index = [self.expProportionateSelection(selection_exp_const),
@@ -125,7 +126,8 @@ class GeneticAlgorithm:
             generation = generation+1
             # Evaluation:
             # (Here due to the stopping criterion)
-            print("\n\nGeneration ", generation, ": Evaluation")
+            print("OK\nGeneration " + str(generation)+": Evaluating...", end=" ")
+
             self.evaluation(MSEcalculator, expr_gen, satisfactory_MSE)
 
         # self.best_subject_index = self.MSE.index(min(self.MSE))
