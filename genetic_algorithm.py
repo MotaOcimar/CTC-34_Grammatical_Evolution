@@ -6,7 +6,7 @@ from data_analyzer import *
 
 class GeneticAlgorithm:
     population = list()
-    MSE = list()
+    mse_list = list()
     best_expr = None
     min_mse = np.inf
 
@@ -19,11 +19,11 @@ class GeneticAlgorithm:
     def createPopulation(self):
         # Cria a polulação:
         for i in range(0, self.population_size):
-            self.population.append([random.randint(0, self.gene_max) for i in range(0, self.chromosome_size)])
+            self.population.append([random.randint(0, self.gene_max) for j in range(0, self.chromosome_size)])
 
     def proportionateSelection(self):
         probabilities = []
-        fitness = np.divide(1, self.MSE)
+        fitness = np.divide(1, self.mse_list)
         fitness_sum = np.sum(fitness)
         previous_probability = 0.0
 
@@ -39,7 +39,8 @@ class GeneticAlgorithm:
 
     def expProportionateSelection(self, selection_exp_const=50):
         probabilities = []
-        fitness = list(np.exp(np.divide(selection_exp_const*self.min_mse, self.MSE))-1)  # the '-1' is to fitness(mse = inf) == 0
+        fitness = list(np.exp(np.divide(selection_exp_const*self.min_mse, self.mse_list))-1)
+        # the '-1' is to fitness(mse = inf) == 0
 
         fitness_sum = np.sum(fitness)
         previous_probability = 0.0
@@ -66,8 +67,20 @@ class GeneticAlgorithm:
                 son[gene_index] = random.randint(0, self.gene_max)
         return son
 
-    def evaluation(self, MSEcalculator, expr_gen, satisfactory_MSE=10**-6):
-        self.MSE = []
+    def plague(self, plague_percent=None):
+        if plague_percent is None:
+            rand = random.random()
+            percent = (self.population_size*rand//2)/self.population_size
+        else:
+            percent = plague_percent
+
+        print(f"\nOHH NO!!! The black plague came and wiped out about {percent*100:.4}% of the population!")
+        for i in range(0, int(self.population_size*percent)):
+            rand_index = random.randint(0, self.population_size-1)
+            self.population[rand_index] = [random.randint(0, self.gene_max) for j in range(0, self.chromosome_size)]
+
+    def evaluation(self, mse_calculator, expr_gen, satisfactory_mse=10**-6):
+        self.mse_list = []
         self.min_mse = np.inf
         self.best_expr = None
         useful_size = None
@@ -75,13 +88,13 @@ class GeneticAlgorithm:
         for chromosome in self.population:
             expr_gen.reset()
             expr = expr_gen.derivateFromChromosome(chromosome, 5)
-            mse = MSEcalculator.mean_squared_error(expr)
+            mse = mse_calculator.mean_squared_error(expr)
 
             # to avoid nan/inf fitness:
             if not np.isfinite(mse):
                 mse = np.inf
             elif mse == 0:
-                mse = satisfactory_MSE
+                mse = satisfactory_mse
 
             # finding the best expression:
             if mse < self.min_mse:
@@ -89,22 +102,27 @@ class GeneticAlgorithm:
                 self.best_expr = expr
                 useful_size = expr_gen.useful_size
             # print(expr, ": ", mse)
-            self.MSE.append(mse)
+            self.mse_list.append(mse)
 
         print("OK\n\n\tBest expression:\t", self.best_expr)
         print("\tsqrt(MSE):\t\t\t", np.sqrt(self.min_mse), "\t\tUseful size: ", useful_size)
 
-    def evolve(self, filename, crossing_probability=0.8, mutation_rate=0.1, selection_exp_const=50, max_generations=200,
-               const_num_digits=3, satisfactory_MSE=10**-6):
+    def evolve(self, filename, crossing_probability=0.8, mutation_rate=0.1, plague_probability=0.1, plague_percent=None,
+               selection_exp_const=50, max_generations=200, const_num_digits=3, satisfactory_mse=10**-6):
         # Evaluation:
         print("Generation 1: Evaluating...")
-        MSEcalculator = DataAnalyzer(filename)
+        mse_calculator = DataAnalyzer(filename)
         expr_gen = Expression(const_num_digits)
-        self.evaluation(MSEcalculator, expr_gen, satisfactory_MSE)
+        self.evaluation(mse_calculator, expr_gen, satisfactory_mse)
 
         # Evolve loop:
         generation = 1
-        while generation < max_generations and min(self.MSE) > satisfactory_MSE:
+        while generation < max_generations and min(self.mse_list) > satisfactory_mse:
+
+            # Plague:
+            if random.random() < plague_probability:
+                self.plague(plague_percent)
+
             # Selection, crossing and mutation:
             print("\n\nSelecting and crossing ...", end="")
             for children_index in range(0, self.population_size//2):
@@ -126,11 +144,11 @@ class GeneticAlgorithm:
             generation = generation+1
             # Evaluation:
             # (Here due to the stopping criterion)
-            print("OK\nGeneration " + str(generation)+": Evaluating...", end=" ")
+            print("OK\nGeneration " + str(generation)+": Evaluating...", end="")
 
-            self.evaluation(MSEcalculator, expr_gen, satisfactory_MSE)
+            self.evaluation(mse_calculator, expr_gen, satisfactory_mse)
 
-        # self.best_subject_index = self.MSE.index(min(self.MSE))
+        # self.best_subject_index = self.mse_list.index(min(self.mse_list))
         # self.best_subject = self.population[self.best_subject_index]
 
         return generation
