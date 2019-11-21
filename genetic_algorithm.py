@@ -21,22 +21,6 @@ class GeneticAlgorithm:
         for i in range(0, self.population_size):
             self.population.append([random.randint(0, self.gene_max) for j in range(0, self.chromosome_size)])
 
-    def proportionateSelection(self):
-        probabilities = []
-        fitness = np.divide(1, self.mse_list)
-        fitness_sum = np.sum(fitness)
-        previous_probability = 0.0
-
-        for i in range(0, self.population_size):
-            previous_probability = previous_probability + (fitness[i] / fitness_sum)
-            probabilities.append(previous_probability)
-
-        # print(fitness_sum)
-        # print(probabilities)
-        rand = random.random()
-        # print(rand)
-        return bisect.bisect_left(probabilities, rand)
-
     def expProportionateSelection(self, selection_exp_const=50):
         probabilities = []
         fitness = list(np.exp(np.divide(selection_exp_const*self.min_mse, self.mse_list))-1)
@@ -49,10 +33,7 @@ class GeneticAlgorithm:
             previous_probability = previous_probability + (fitness[i] / fitness_sum)
             probabilities.append(previous_probability)
 
-        # print(fitness_sum)
-        # print(probabilities)
         rand = random.random()
-        # print(rand)
         return bisect.bisect_left(probabilities, rand)
 
     def crossover(self, parents_index):
@@ -101,7 +82,6 @@ class GeneticAlgorithm:
                 self.min_mse = mse
                 self.best_expr = expr
                 useful_size = expr_gen.useful_size
-            # print(expr, ": ", mse)
             self.mse_list.append(mse)
 
         print("OK\n\n\tBest expression:\t", self.best_expr)
@@ -129,7 +109,7 @@ class GeneticAlgorithm:
                 # Selection:
                 parents_index = [self.expProportionateSelection(selection_exp_const),
                                  self.expProportionateSelection(selection_exp_const)]
-                # print(parents_index)
+
                 rand = random.random()
                 if rand < crossing_probability:
                     # Crossing:
@@ -147,8 +127,5 @@ class GeneticAlgorithm:
             print("OK\nGeneration " + str(generation)+": Evaluating...", end="")
 
             self.evaluation(mse_calculator, expr_gen, satisfactory_mse)
-
-        # self.best_subject_index = self.mse_list.index(min(self.mse_list))
-        # self.best_subject = self.population[self.best_subject_index]
 
         return generation
