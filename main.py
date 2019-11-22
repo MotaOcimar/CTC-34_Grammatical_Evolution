@@ -1,5 +1,6 @@
 from data_analyzer import DataAnalyzer
 from genetic_algorithm import GeneticAlgorithm
+import numpy as np
 import csv
 
 file_training = "training.csv"
@@ -11,13 +12,13 @@ total_generations = evolution.evolve(file_training, crossing_probability=1, muta
                                      satisfactory_mse=0.01)
 
 print("\n\n\nBest subject: ", evolution.best_expr)
-print("MSE: ", min(evolution.mse_list))
+print("sqrt(MSE): ", np.sqrt(min(evolution.mse_list)))
 print("In ", total_generations, "generations")
 
 analysis = DataAnalyzer('testing.csv')
 strength = analysis.strength(evolution.best_expr)
 
-with open('sample.csv', mode='w') as f:
+with open('sub0.csv', mode='w') as f:
     sample_writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     sample_writer.writerow(['ID', 'strength'])
     i = 722

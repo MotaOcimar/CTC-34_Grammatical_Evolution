@@ -1,5 +1,6 @@
 import random
 import bisect
+from statistics import mode
 from Grammar.Expression import Expression
 from data_analyzer import *
 
@@ -24,7 +25,7 @@ class GeneticAlgorithm:
     def expProportionateSelection(self, selection_exp_const=50):
         probabilities = []
         fitness = list(np.exp(np.divide(selection_exp_const*self.min_mse, self.mse_list))-1)
-        # the '-1' is to fitness(mse = inf) == 0
+        # the '-1' is to fitness(mse = inf) = 0
 
         fitness_sum = np.sum(fitness)
         previous_probability = 0.0
@@ -62,14 +63,15 @@ class GeneticAlgorithm:
 
     def evaluation(self, mse_calculator, expr_gen, satisfactory_mse=10**-6):
         self.mse_list = []
+        expr_list = []
+        useful_size_list = []
         self.min_mse = np.inf
         self.best_expr = None
-        useful_size = None
 
         for chromosome in self.population:
             expr_gen.reset()
             expr = expr_gen.derivateFromChromosome(chromosome, 5)
-            mse = mse_calculator.mean_squared_error(expr)
+            mse = round(mse_calculator.mean_squared_error(expr), 10)
 
             # to avoid nan/inf fitness:
             if not np.isfinite(mse):
@@ -81,11 +83,31 @@ class GeneticAlgorithm:
             if mse < self.min_mse:
                 self.min_mse = mse
                 self.best_expr = expr
-                useful_size = expr_gen.useful_size
-            self.mse_list.append(mse)
 
-        print("OK\n\n\tBest expression:\t", self.best_expr)
-        print("\tsqrt(MSE):\t\t\t", np.sqrt(self.min_mse), "\t\tUseful size: ", useful_size)
+            self.mse_list.append(mse)
+            expr_list.append(expr)
+            useful_size_list.append(expr_gen.useful_size)
+
+        mse_sorted = self.mse_list.copy()
+        mse_sorted.sort()
+
+        print("OK\n\nTop 5:")
+        next_index = 0
+        for i in range(0, 5):
+            num_occurrence = mse_sorted.count(mse_sorted[next_index])
+            print("\n\t\t #", i+1, ":\t", expr_list[self.mse_list.index(mse_sorted[next_index])], sep='')
+            print("\t\tsqrt(MSE):", np.sqrt(mse_sorted[next_index]),
+                  "\tUseful size:", useful_size_list[self.mse_list.index(mse_sorted[next_index])],
+                  "\tFrequency:", num_occurrence)
+            next_index += num_occurrence
+            if next_index >= self.population_size:
+                break
+
+        mode_mse = mode(mse_sorted)
+        print("\n\t\tMost frequent:\t", expr_list[self.mse_list.index(mode_mse)], sep='')
+        print("\t\tsqrt(MSE):", np.sqrt(mode_mse),
+              "\tUseful size:", useful_size_list[self.mse_list.index(mode(mse_sorted))],
+              "\tFrequency:", self.mse_list.count(mode_mse))
 
     def evolve(self, filename, crossing_probability=0.8, mutation_rate=0.1, plague_probability=0.1, plague_percent=None,
                selection_exp_const=50, max_generations=200, const_num_digits=3, satisfactory_mse=10**-6):
@@ -109,7 +131,6 @@ class GeneticAlgorithm:
                 # Selection:
                 parents_index = [self.expProportionateSelection(selection_exp_const),
                                  self.expProportionateSelection(selection_exp_const)]
-
                 rand = random.random()
                 if rand < crossing_probability:
                     # Crossing:
