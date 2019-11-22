@@ -56,7 +56,9 @@ class GeneticAlgorithm:
         else:
             percent = plague_percent
 
-        print(f"\nOHH NO!!! The black plague came and wiped out about {percent*100:.4}% of the population!")
+        print("\nOHH NO!!! The black plague came and wiped out about ",
+              round(percent*100, 4), "% of the population!", sep='')
+
         for i in range(0, int(self.population_size*percent)):
             rand_index = random.randint(0, self.population_size-1)
             self.population[rand_index] = [random.randint(0, self.gene_max) for j in range(0, self.chromosome_size)]
