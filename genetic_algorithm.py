@@ -49,12 +49,12 @@ class GeneticAlgorithm:
                 son[gene_index] = random.randint(0, self.gene_max)
         return son
 
-    def plague(self, plague_percent=None):
-        if plague_percent is None:
-            rand = random.random()
-            percent = (self.population_size*rand//2)/self.population_size
+    def plague(self, plague_max_percent=0.5, plague_exact_percent=None):
+        if plague_exact_percent is None:
+            rand = random.random()*plague_max_percent
+            percent = (self.population_size*rand)/self.population_size
         else:
-            percent = plague_percent
+            percent = plague_exact_percent
 
         print("\nOHH NO!!! The black plague came and wiped out about ",
               round(percent*100, 4), "% of the population!", sep='')
@@ -111,8 +111,9 @@ class GeneticAlgorithm:
               "\tUseful size:", useful_size_list[self.mse_list.index(mode(mse_sorted))],
               "\tFrequency:", self.mse_list.count(mode_mse))
 
-    def evolve(self, filename, crossing_probability=0.8, mutation_rate=0.1, plague_probability=0.1, plague_percent=None,
-               selection_exp_const=50, max_generations=200, const_num_digits=3, satisfactory_mse=10**-6):
+    def evolve(self, filename, crossing_probability=0.8, mutation_rate=0.1, plague_probability=0.1,
+               plague_max_percent=0.5, plague_exact_percent=None, selection_exp_const=50, max_generations=200,
+               const_num_digits=3, satisfactory_mse=10**-6):
         # Evaluation:
         print("Generation 1: Evaluating...")
         mse_calculator = DataAnalyzer(filename)
@@ -125,7 +126,7 @@ class GeneticAlgorithm:
 
             # Plague:
             if random.random() < plague_probability:
-                self.plague(plague_percent)
+                self.plague(plague_max_percent, plague_exact_percent)
 
             # Selection, crossing and mutation:
             print("\n\nSelecting and crossing ...", end="")

@@ -7,9 +7,9 @@ file_training = "training.csv"
 # file_training = 'just_prod.csv'
 evolution = GeneticAlgorithm(population_size=5000, chromosome_size=65)
 evolution.createPopulation()
-total_generations = evolution.evolve(file_training, crossing_probability=1, mutation_rate=0.1, plague_probability=0.1,
-                                     selection_exp_const=100, max_generations=200, const_num_digits=3,
-                                     satisfactory_mse=0.01)
+total_generations = evolution.evolve(file_training, crossing_probability=1, mutation_rate=0.1, plague_max_percent=0.2,
+                                     plague_probability=0.8, selection_exp_const=100, max_generations=200,
+                                     const_num_digits=3, satisfactory_mse=0.01)
 
 print("\n\n\nBest subject: ", evolution.best_expr)
 print("sqrt(MSE): ", np.sqrt(min(evolution.mse_list)))
