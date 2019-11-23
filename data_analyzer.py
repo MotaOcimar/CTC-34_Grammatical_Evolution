@@ -18,7 +18,7 @@ class DataAnalyzer:
             self.expected_strength = np.float_(x)
 
     def strength(self, exp):
-        func = eval('lambda varA, varB, varC, varD, varE, varF, varG, varH:' + exp)
+        func = eval('lambda A, B, C, D, E, F, G, H:' + exp)
         strength_list = []
         for x in self.data:
             try:

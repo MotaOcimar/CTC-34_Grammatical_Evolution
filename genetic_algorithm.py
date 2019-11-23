@@ -73,7 +73,8 @@ class GeneticAlgorithm:
         for chromosome in self.population:
             expr_gen.reset()
             expr = expr_gen.derivateFromChromosome(chromosome, 5)
-            if expr.count("var") < min_num_vars:
+            if int('A' in expr) + int('B' in expr) + int('C' in expr) + int('D' in expr) + int('E' in expr) +\
+                    int('F' in expr) + int('G' in expr) + int('H' in expr) < min_num_vars:
                 mse = np.inf
             else:
                 mse = round(mse_calculator.mean_squared_error(expr), 10)
@@ -115,6 +116,8 @@ class GeneticAlgorithm:
         print("\t\tsqrt(MSE):", np.sqrt(mode_mse),
               "\tUseful size:", useful_size_list[self.mse_list.index(mode_mse)],
               "\tFrequency:", self.mse_list.count(mode_mse))
+
+        print("\n\t\tInfertile ones:\tFrequency:", self.mse_list.count(np.inf))
 
     def evolve(self, filename, crossing_probability=0.8, mutation_rate=0.1, plague_probability=0.1,
                plague_max_percent=0.5, plague_exact_percent=None, selection_exp_const=50, max_generations=200,
