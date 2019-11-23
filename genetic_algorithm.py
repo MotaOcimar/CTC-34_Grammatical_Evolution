@@ -1,6 +1,6 @@
 import random
 import bisect
-from statistics import mode
+from collections import Counter
 from Grammar.Expression import Expression
 from data_analyzer import *
 
@@ -63,7 +63,7 @@ class GeneticAlgorithm:
             rand_index = random.randint(0, self.population_size-1)
             self.population[rand_index] = [random.randint(0, self.gene_max) for j in range(0, self.chromosome_size)]
 
-    def evaluation(self, mse_calculator, expr_gen, satisfactory_mse=10**-6):
+    def evaluation(self, mse_calculator, expr_gen, min_num_vars=3, satisfactory_mse=10**-6):
         self.mse_list = []
         expr_list = []
         useful_size_list = []
@@ -73,7 +73,10 @@ class GeneticAlgorithm:
         for chromosome in self.population:
             expr_gen.reset()
             expr = expr_gen.derivateFromChromosome(chromosome, 5)
-            mse = round(mse_calculator.mean_squared_error(expr), 10)
+            if expr.count("var") < min_num_vars:
+                mse = np.inf
+            else:
+                mse = round(mse_calculator.mean_squared_error(expr), 10)
 
             # to avoid nan/inf fitness:
             if not np.isfinite(mse):
@@ -105,20 +108,22 @@ class GeneticAlgorithm:
             if next_index >= self.population_size:
                 break
 
-        mode_mse = mode(mse_sorted)
-        print("\n\t\tMost frequent:\t", expr_list[self.mse_list.index(mode_mse)], sep='')
+        aux = [x for x in mse_sorted if np.isfinite(x)]
+        data = Counter(aux)
+        mode_mse = data.most_common(1)[0][0]
+        print("\n\t\tMost frequent (and fertile):\n\t\t\t\t", expr_list[self.mse_list.index(mode_mse)], sep='')
         print("\t\tsqrt(MSE):", np.sqrt(mode_mse),
-              "\tUseful size:", useful_size_list[self.mse_list.index(mode(mse_sorted))],
+              "\tUseful size:", useful_size_list[self.mse_list.index(mode_mse)],
               "\tFrequency:", self.mse_list.count(mode_mse))
 
     def evolve(self, filename, crossing_probability=0.8, mutation_rate=0.1, plague_probability=0.1,
                plague_max_percent=0.5, plague_exact_percent=None, selection_exp_const=50, max_generations=200,
-               const_num_digits=3, satisfactory_mse=10**-6):
+               min_num_vars=3, const_num_digits=3, satisfactory_mse=10**-6):
         # Evaluation:
         print("Generation 1: Evaluating...")
         mse_calculator = DataAnalyzer(filename)
         expr_gen = Expression(const_num_digits)
-        self.evaluation(mse_calculator, expr_gen, satisfactory_mse)
+        self.evaluation(mse_calculator, expr_gen, min_num_vars, satisfactory_mse)
 
         # Evolve loop:
         generation = 1
@@ -150,6 +155,6 @@ class GeneticAlgorithm:
             # (Here due to the stopping criterion)
             print("OK\nGeneration " + str(generation)+": Evaluating...", end="")
 
-            self.evaluation(mse_calculator, expr_gen, satisfactory_mse)
+            self.evaluation(mse_calculator, expr_gen, min_num_vars, satisfactory_mse)
 
         return generation
